@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:graphview/GraphView.dart';
 
@@ -7,7 +6,7 @@ class StateMachine {
   final String statesEnum;
   final String fileContents;
 
-  final Graph graph = Graph();
+  late final Graph graph;
 
   final Map<String, Node> states = {};
   final List<Edge> transitions = [];
@@ -18,6 +17,9 @@ class StateMachine {
       {required this.name,
       required this.statesEnum,
       required this.fileContents}) {
+        
+    graph = Graph();
+
     loadStates();
 
     loadTransitions();
@@ -26,8 +28,6 @@ class StateMachine {
 
     addTransitionsToGraph();
 
-    print(name);
-    print(graph.edges);
   }
 
   bool isOmni(int id) {
@@ -40,7 +40,6 @@ class StateMachine {
 
   void addTransitionsToGraph() {
     for (Edge edge in transitions) {
-      // print("Adding edge from ${edge.from} to ${edge.to}");
       graph.addEdge(states[edge.from]!, states[edge.to]!);
     }
   }
@@ -97,7 +96,7 @@ class StateMachine {
 
   void loadStates() {
     final statesEnumRegex =
-        RegExp(r'public[\n ]+enum[\n ]+([a-zA-z]+)[\n ]+{([\S\s]+?)}');
+        RegExp(r'public[\n ]+enum[\n ]+([a-zA-z]+)[\n ]+{([\S\s]+?)[;}]');
 
     final match = statesEnumRegex.firstMatch(fileContents);
 
@@ -113,6 +112,12 @@ class StateMachine {
             return line.trim().isNotEmpty && !line.trim().startsWith('//');
           })
           .map((e) => e.trim())
+          .map((e) => e.split("(").first)
+          .map((e) {
+            if(!e.contains(",")) e += ",";
+
+            return e; 
+          })
           .toList();
 
       // Join lines into a single string to handle multiple enum values on one line
@@ -131,11 +136,8 @@ class StateMachine {
         Node node = Node.Id(enumValues.indexOf(val));
         states.putIfAbsent(val, () => node);
 
-        print("adding: $val");
         graph.addNode(node);
       }
-
-      print("hello");
     }
   }
 }
