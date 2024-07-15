@@ -46,6 +46,7 @@ dependencies:
   web_socket_channel: ^2.4.3
   logger: ^2.0.2+1
   path_provider: ^2.0.15
+  flutter_animate: ^4.5.0
 
 
 

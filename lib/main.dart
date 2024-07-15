@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -6,17 +7,20 @@ import 'package:graphview/GraphView.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sham_machine/constants.dart';
+import 'package:sham_machine/network_tree/networktables_tree_row.dart';
 import 'package:sham_machine/services/ip_address_util.dart';
 import 'package:sham_machine/services/log.dart';
+import 'package:sham_machine/services/nt4_client.dart';
 import 'package:sham_machine/services/nt_connection.dart';
 import 'package:sham_machine/settings.dart';
 import 'package:sham_machine/settings_dialog.dart';
 import 'package:sham_machine/state_machine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() async {
+import 'state_widget.dart';
 
-    await logger.initialize();
+void main() async {
+  await logger.initialize();
 
   final String appFolderPath = (await getApplicationSupportDirectory()).path;
 
@@ -43,7 +47,6 @@ void main() async {
       preferences.getString(PrefKeys.ipAddress) ?? Settings.ipAddress;
 
   ntConnection.nt4Connect(Settings.ipAddress);
-
 
   runApp(ShamMachine(preferences: preferences));
 }
@@ -98,12 +101,10 @@ class ShamMachine extends StatefulWidget {
 class _ShamMachineState extends State<ShamMachine> {
   String version = "";
 
-
   @override
   void initState() {
     super.initState();
     initVersion();
-
   }
 
   void initVersion() async {
@@ -150,6 +151,11 @@ class _HomePageState extends State<HomePage> {
   StateMachine? currentMachine;
   late Widget interactiveViewer;
 
+  final NetworkTableTreeRow root = NetworkTableTreeRow(topic: '/', rowName: '');
+  int previousTopicsLength = 0;
+
+  bool wasConnected = false;
+
   @override
   void initState() {
     loadProjectPath().then((projectPreset) {
@@ -161,11 +167,73 @@ class _HomePageState extends State<HomePage> {
     });
 
     prefs = widget.prefs;
+
+    Timer.periodic(Duration(milliseconds: 500), (timer) {
+      setState(() {
+        // Perform any state updates here
+      });
+    });
+  }
+
+  void createRows(NT4Topic nt4Topic) {
+    String topic = nt4Topic.name;
+
+    List<String> rows = topic.substring(1).split('/');
+    NetworkTableTreeRow? current;
+    String currentTopic = '';
+
+    for (String row in rows) {
+      currentTopic += '/$row';
+
+      bool lastElement = currentTopic == topic;
+
+      if (current != null) {
+        if (current.hasRow(row)) {
+          current = current.getRow(row);
+        } else {
+          current = current.createNewRow(
+              topic: currentTopic,
+              name: row,
+              ntTopic: (lastElement) ? nt4Topic : null);
+        }
+      } else {
+        if (root.hasRow(row)) {
+          current = root.getRow(row);
+        } else {
+          current = root.createNewRow(
+              topic: currentTopic,
+              name: row,
+              ntTopic: (lastElement) ? nt4Topic : null);
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    print(currentMachine?.graph);
+    //Load all NT4 topics
+    List<NT4Topic> topics = [];
+
+    for (NT4Topic topic in ntConnection.nt4Client.announcedTopics.values) {
+      if (topic.name == 'Time') {
+        continue;
+      }
+
+      topics.add(topic);
+    }
+
+    for (NT4Topic topic in topics) {
+      createRows(topic);
+    }
+
+    if (topics.length != previousTopicsLength) {
+      previousTopicsLength = topics.length;
+      stateMachines.forEach((e) {
+        e.loadSubsystemSubscriptions();
+      });
+      setState(() {});
+    }
+
 
     return Scaffold(
         appBar: AppBar(
@@ -175,6 +243,15 @@ class _HomePageState extends State<HomePage> {
                 stream: ntConnection.connectionStatus(),
                 builder: (context, snapshot) {
                   bool connected = snapshot.data ?? false;
+
+                  if (connected != wasConnected) {
+                    // Schedule a callback for the end of this frame
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        wasConnected = connected;
+                      });
+                    });
+                  }
 
                   String connectedText = (connected)
                       ? 'Network Tables: Connected (${prefs.getString(PrefKeys.ipAddress)})'
@@ -222,13 +299,7 @@ class _HomePageState extends State<HomePage> {
                       style: StyleConstants.subtitleStyle,
                     )),
                     ...stateMachines.map((machine) {
-                      return ListTile(
-                        title: Text(machine.name),
-                        subtitle: Text(machine.statesEnum),
-                        onTap: () {
-                          setCurrentMachine(machine);
-                        },
-                      );
+                      return stateMachineList(machine);
                     }).toList(),
                   ],
                 ),
@@ -240,10 +311,30 @@ class _HomePageState extends State<HomePage> {
                   ? Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Wrap(children: [
-                          Text(
-                            currentMachine!.name,
-                            style: StyleConstants.titleStyle,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              currentMachine!.name,
+                              style: StyleConstants.titleStyle,
+                            ),
+                          ),
+                          currentMachine!.isEnabled() ? const Tooltip(
+                            message: "Enabled",
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.green,
+                              size: 48,
+                            ),
+                          ) : const Tooltip(
+                            message: "Not Enabled",
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.red,
+                              size: 48,
+                            ),
                           )
                         ]),
                         Expanded(child: interactiveViewer)
@@ -261,27 +352,26 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
-  Widget rectangleWidget(int id) {
-    bool isOmni = currentMachine!.isOmni(id);
+  ListTile stateMachineList(StateMachine machine) {
+    bool isInNT = false;
 
-    return InkWell(
+    try {
+      isInNT = machine.getMachineInNT().topic.isNotEmpty;
+    } catch (e) {}
+
+    return ListTile(
+      title: Text(machine.name),
+      subtitle: Text(machine.statesEnum),
+      trailing: isInNT
+          ? const Tooltip(
+              message: "Found on NT",
+              child: Icon(Icons.power, color: Colors.green))
+          : const Tooltip(
+              message: "Not Found on NT",
+              child: Icon(Icons.power_off, color: Colors.red)),
       onTap: () {
-        print('clicked');
+        setCurrentMachine(machine);
       },
-      child: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: [
-            BoxShadow(
-                color: !isOmni ? Colors.blue : Colors.green, spreadRadius: 1),
-          ],
-        ),
-        child: Text(
-          currentMachine!.getStateFromNodeId(id),
-          style: StyleConstants.subtitleStyle,
-        ),
-      ),
     );
   }
 
@@ -341,7 +431,8 @@ class _HomePageState extends State<HomePage> {
           machines.add(StateMachine(
               name: match.group(1)!,
               statesEnum: match.group(2)!,
-              fileContents: contents));
+              fileContents: contents,
+              root: root));
         }
       }
     });
@@ -351,7 +442,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     if (stateMachines.isNotEmpty) {
-      setCurrentMachine(machines.last);
+      setCurrentMachine(machines.first);
     }
   }
 
@@ -376,7 +467,7 @@ class _HomePageState extends State<HomePage> {
             builder: (Node node) {
               // I can decide what widget should be shown here based on the id
               var id = node.key?.value as int;
-              return rectangleWidget(id);
+              return StateWidget(machine: currentMachine, id: id);
             },
           ));
     });

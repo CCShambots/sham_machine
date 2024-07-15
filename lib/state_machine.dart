@@ -1,10 +1,21 @@
-
 import 'package:graphview/GraphView.dart';
+import 'package:sham_machine/network_tree/networktables_tree_row.dart';
+import 'package:sham_machine/services/nt4_client.dart';
+import 'package:sham_machine/services/nt_connection.dart';
 
 class StateMachine {
   final String name;
   final String statesEnum;
   final String fileContents;
+
+  final NetworkTableTreeRow root;
+  late final NT4Subscription? enabledSubscription;
+  late final NT4Subscription? currentStateSubscription;
+  late final NT4Subscription? desiredStateSubscription;
+  late final NT4Subscription? flagsSubscription;
+
+  NT4Topic? selectedStateSetterTopic;
+  late final String _setStateTopic;
 
   late final Graph graph;
 
@@ -16,9 +27,11 @@ class StateMachine {
   StateMachine(
       {required this.name,
       required this.statesEnum,
-      required this.fileContents}) {
-        
+      required this.fileContents,
+      required this.root}) {
     graph = Graph();
+
+    _setStateTopic = "/SmartDashboard/$name State Chooser/selected";
 
     loadStates();
 
@@ -27,7 +40,143 @@ class StateMachine {
     loadOmniTransitions();
 
     addTransitionsToGraph();
+  }
 
+  void loadSubsystemSubscriptions() {
+    loadEnabledSubscription();
+    loadStateSubscription();
+    loadDesiredSubcription();
+    loadFlagsSubscription();
+    loadTargetStateTopic();
+  }
+
+  NetworkTableTreeRow getMachineInNT() {
+    return root.getRow("AdvantageKit").getRow("RealOutputs").getRow(name);
+  }
+
+  void createTopicIfNull() {
+    selectedStateSetterTopic ??= ntConnection.getTopicFromName(_setStateTopic);
+  }
+
+  void setTargetState(String state) {
+    try {
+      bool publishTopic = selectedStateSetterTopic == null ||
+          !ntConnection.isTopicPublished(selectedStateSetterTopic!);
+
+      createTopicIfNull();
+
+      if (selectedStateSetterTopic == null) {
+        return;
+      }
+
+      if (publishTopic) {
+        ntConnection.nt4Client.publishTopic(selectedStateSetterTopic!);
+      }
+
+      ntConnection.updateDataFromTopic(selectedStateSetterTopic!, state);
+    } catch (e) {
+      print("Failed to set target state for $name");
+    }
+  }
+
+  void loadTargetStateTopic() {
+    try {
+      bool publishTopic = selectedStateSetterTopic == null ||
+          !ntConnection.isTopicPublished(selectedStateSetterTopic!);
+
+      createTopicIfNull();
+
+      if (publishTopic) {
+        // var row = root
+        //     .getRow("SmartDashboard")
+        //     .getRow("${name} State Chooser")
+        //     .getRow("default");
+
+        // var defaultSub = ntConnection.subscribe(row.topic);
+
+        ntConnection.nt4Client.publishNewTopic(_setStateTopic, "string");
+      }
+
+      print("Loaded state setter for ${name}");
+    } catch (e) {
+      print("Failed to load active state setter topic for $name");
+    }
+  }
+
+  void loadFlagsSubscription() {
+    try {
+      var row = getMachineInNT();
+
+      String topic = row.getRow("flags").topic;
+      flagsSubscription = ntConnection.subscribe(topic);
+    } catch (e) {
+      // print("Failed to load flags subscription for $name");
+    }
+  }
+
+  void loadDesiredSubcription() {
+    try {
+      var row = getMachineInNT();
+
+      String topic = row.getRow("desired").topic;
+      desiredStateSubscription = ntConnection.subscribe(topic);
+    } catch (e) {
+      // print("Failed to load desired subscription for $name");
+    }
+  }
+
+  void loadStateSubscription() {
+    try {
+      var row = getMachineInNT();
+
+      String topic = row.getRow("state").topic;
+      currentStateSubscription = ntConnection.subscribe(topic);
+    } catch (e) {
+      // print("Failed to load current state subscription for $name");
+    }
+  }
+
+  void loadEnabledSubscription() {
+    try {
+      var row = getMachineInNT();
+
+      String topic = row.getRow("enabled").topic;
+      enabledSubscription = ntConnection.subscribe(topic);
+    } catch (e) {
+      // print("Failed to load enabled subscription for $name");
+    }
+  }
+
+  bool isEnabled() {
+    try {
+      return enabledSubscription?.currentValue as bool;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  String getCurrentState() {
+    try {
+      return currentStateSubscription?.currentValue as String;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  String getDesiredState() {
+    try {
+      return desiredStateSubscription?.currentValue as String;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  bool isFlagSet(String flag) {
+    try {
+      return (flagsSubscription?.currentValue as List<String>).contains(flag);
+    } catch (e) {
+      return false;
+    }
   }
 
   bool isOmni(int id) {
@@ -73,7 +222,6 @@ class StateMachine {
   }
 
   void loadOmniTransitions() {
-    
     final transitionRegex = RegExp(r'addOmniTransition *\( *(.+) *[,)]');
 
     final matches = transitionRegex.allMatches(fileContents);
@@ -114,9 +262,9 @@ class StateMachine {
           .map((e) => e.trim())
           .map((e) => e.split("(").first)
           .map((e) {
-            if(!e.contains(",")) e += ",";
+            if (!e.contains(",")) e += ",";
 
-            return e; 
+            return e;
           })
           .toList();
 
