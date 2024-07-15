@@ -1,5 +1,5 @@
 name: sham_machine
-description: "A new Flutter project."
+description: "An app that connects to robots using ShamLib, developed by FRC 5907, in order to more easily debug state machines and control their behaviors."
 publish_to: 'none'
 
 version: 1.0.0+1
