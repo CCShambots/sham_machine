@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:dot_cast/dot_cast.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sham_machine/constants.dart';
 import 'package:sham_machine/services/ip_address_util.dart';
 import 'package:sham_machine/services/nt_connection.dart';
 import 'package:sham_machine/services/text_formatter_builder.dart';
@@ -34,10 +36,26 @@ class SettingsDialog extends StatefulWidget {
 }
 
 class _SettingsDialogState extends State<SettingsDialog> {
+  String version = "";
+
+  @override
+  void initState() {
+    super.initState();
+    initVersion();
+  }
+
+  void initVersion() async {
+    PackageInfo info = await PackageInfo.fromPlatform();
+
+    setState(() {
+      version = info.version;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Settings'),
+      title: const Align(alignment: Alignment.center, child: Text('Settings')),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       content: Container(
         constraints: const BoxConstraints(
@@ -48,6 +66,10 @@ class _SettingsDialogState extends State<SettingsDialog> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.center,
+                child: Text('Version $version'),
+              ),
               ..._generalSettings(),
               const Divider(),
               ..._ipAddressSettings(),
@@ -66,27 +88,27 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   List<Widget> _generalSettings() {
     return [
-          Flexible(
-            child: DialogTextInput(
-              initialText:
-                  widget.preferences.getInt(PrefKeys.teamNumber)?.toString() ??
-                      Settings.teamNumber.toString(),
-              label: 'Team Number',
-              onSubmit: (data) async {
-                await widget.onTeamNumberChanged?.call(data);
-                setState(() {});
-              },
-              formatter: FilteringTextInputFormatter.digitsOnly,
-            ),
-          ),
+      Flexible(
+        child: DialogTextInput(
+          initialText:
+              widget.preferences.getInt(PrefKeys.teamNumber)?.toString() ??
+                  Settings.teamNumber.toString(),
+          label: 'Team Number',
+          onSubmit: (data) async {
+            await widget.onTeamNumberChanged?.call(data);
+            setState(() {});
+          },
+          formatter: FilteringTextInputFormatter.digitsOnly,
+        ),
+      ),
     ];
   }
 
   List<Widget> _ipAddressSettings() {
     return [
-      const Align(
-        alignment: Alignment.topLeft,
-        child: Text('IP Address Settings'),
+      Align(
+        alignment: Alignment.center,
+        child: Text('IP Address Settings', style: StyleConstants.h3Style,),
       ),
       const SizedBox(height: 5),
       const Text('IP Address Mode'),
@@ -125,7 +147,6 @@ class _SettingsDialogState extends State<SettingsDialog> {
           })
     ];
   }
-
 
   List<Widget> _networkTablesSettings() {
     return [
