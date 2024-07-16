@@ -1,7 +1,7 @@
 import 'package:graphview/GraphView.dart';
-import 'package:sham_machine/network_tree/networktables_tree_row.dart';
-import 'package:sham_machine/services/nt4_client.dart';
-import 'package:sham_machine/services/nt_connection.dart';
+import 'package:sham_states/network_tree/networktables_tree_row.dart';
+import 'package:sham_states/services/nt4_client.dart';
+import 'package:sham_states/services/nt_connection.dart';
 
 class StateMachine {
   final String name;

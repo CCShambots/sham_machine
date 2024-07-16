@@ -1,4 +1,4 @@
-import 'package:sham_machine/services/ip_address_util.dart';
+import 'package:sham_states/services/ip_address_util.dart';
 
 class Settings {
   static const String repositoryLink =

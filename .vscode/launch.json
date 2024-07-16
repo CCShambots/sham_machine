@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "sham_machine",
+            "name": "sham_states",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "sham_machine (profile mode)",
+            "name": "sham_states (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "sham_machine (release mode)",
+            "name": "sham_states (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

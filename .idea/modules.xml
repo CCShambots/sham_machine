@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/sham_machine.iml" filepath="$PROJECT_DIR$/sham_machine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/sham_machine_android.iml" filepath="$PROJECT_DIR$/android/sham_machine_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sham_states.iml" filepath="$PROJECT_DIR$/sham_states.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/sham_states_android.iml" filepath="$PROJECT_DIR$/android/sham_states_android.iml" />
     </modules>
   </component>
 </project>

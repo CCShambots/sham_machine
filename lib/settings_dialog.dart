@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 
 import 'package:dot_cast/dot_cast.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sham_machine/constants.dart';
-import 'package:sham_machine/services/ip_address_util.dart';
-import 'package:sham_machine/services/nt_connection.dart';
-import 'package:sham_machine/services/text_formatter_builder.dart';
-import 'package:sham_machine/settings.dart';
-import 'package:sham_machine/widgets/dialog_widgets/dialog_dropdown_chooser.dart';
-import 'package:sham_machine/widgets/dialog_widgets/dialog_text_input.dart';
+import 'package:sham_states/constants.dart';
+import 'package:sham_states/services/ip_address_util.dart';
+import 'package:sham_states/services/nt_connection.dart';
+import 'package:sham_states/services/text_formatter_builder.dart';
+import 'package:sham_states/settings.dart';
+import 'package:sham_states/widgets/dialog_widgets/dialog_dropdown_chooser.dart';
+import 'package:sham_states/widgets/dialog_widgets/dialog_text_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsDialog extends StatefulWidget {

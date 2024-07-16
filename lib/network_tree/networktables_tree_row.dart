@@ -1,6 +1,6 @@
 
-import 'package:sham_machine/services/nt4_client.dart';
-import 'package:sham_machine/services/nt_connection.dart';
+import 'package:sham_states/services/nt4_client.dart';
+import 'package:sham_states/services/nt_connection.dart';
 
 class NetworkTableTreeRow {
   final String topic;

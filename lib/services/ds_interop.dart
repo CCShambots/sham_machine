@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:sham_machine/services/ip_address_util.dart';
-import 'package:sham_machine/services/log.dart';
+import 'package:sham_states/services/ip_address_util.dart';
+import 'package:sham_states/services/log.dart';
 
 
 class DSInteropClient {

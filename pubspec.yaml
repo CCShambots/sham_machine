@@ -1,4 +1,4 @@
-name: sham_machine
+name: sham_states
 description: "An app that connects to robots using ShamLib, developed by FRC 5907, in order to more easily debug state machines and control their behaviors."
 publish_to: 'none'
 
@@ -9,13 +9,13 @@ environment:
 
 #dart run msix:create
 msix_config:
-  display_name: ShamMachine
+  display_name: ShamStates
   publisher_display_name: CC Shambots
-  identity_name: CCShambots.ShamMachine
+  identity_name: CCShambots.ShamStates
   store: true
   publisher: CN=A3792B11-8FEE-477E-B2FF-B9039EB1B82B
   capabilities:
-  logo_path: C:\Users\barta\Documents\GitHub\sham_machine\assets\icon\icon.png
+  logo_path: C:\Users\barta\Documents\GitHub\sham_states\assets\icon\icon.png
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -44,6 +44,7 @@ dependencies:
 
   path: any
   collection: any
+  rename_app: ^1.6.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

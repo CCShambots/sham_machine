@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:sham_machine/services/ds_interop.dart';
+import 'package:sham_states/services/ds_interop.dart';
 
-import 'package:sham_machine/services/nt4_client.dart';
+import 'package:sham_states/services/nt4_client.dart';
 
 NTConnection get ntConnection => NTConnection.instance;
 

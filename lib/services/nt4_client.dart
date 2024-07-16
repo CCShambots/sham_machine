@@ -11,7 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:dot_cast/dot_cast.dart';
 import 'package:messagepack/messagepack.dart';
 import 'package:msgpack_dart/msgpack_dart.dart';
-import 'package:sham_machine/services/log.dart';
+import 'package:sham_states/services/log.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 

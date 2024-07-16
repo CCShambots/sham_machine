@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sham_machine/constants.dart';
-import 'package:sham_machine/network_tree/networktables_tree_row.dart';
-import 'package:sham_machine/services/ip_address_util.dart';
-import 'package:sham_machine/services/log.dart';
-import 'package:sham_machine/services/nt4_client.dart';
-import 'package:sham_machine/services/nt_connection.dart';
-import 'package:sham_machine/settings.dart';
-import 'package:sham_machine/settings_dialog.dart';
-import 'package:sham_machine/state_machine.dart';
+import 'package:sham_states/constants.dart';
+import 'package:sham_states/network_tree/networktables_tree_row.dart';
+import 'package:sham_states/services/ip_address_util.dart';
+import 'package:sham_states/services/log.dart';
+import 'package:sham_states/services/nt4_client.dart';
+import 'package:sham_states/services/nt_connection.dart';
+import 'package:sham_states/settings.dart';
+import 'package:sham_states/settings_dialog.dart';
+import 'package:sham_states/state_machine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'state_widget.dart';
@@ -48,7 +48,7 @@ void main() async {
 
   ntConnection.nt4Connect(Settings.ipAddress);
 
-  runApp(ShamMachine(preferences: preferences));
+  runApp(ShamStates(preferences: preferences));
 }
 
 /// Makes a backup copy of the current shared preferences file.
@@ -89,16 +89,16 @@ Future<void> _restorePreferencesFromBackup(String appFolderPath) async {
   }
 }
 
-class ShamMachine extends StatefulWidget {
+class ShamStates extends StatefulWidget {
   final SharedPreferences preferences;
 
-  const ShamMachine({super.key, required this.preferences});
+  const ShamStates({super.key, required this.preferences});
 
   @override
-  State<ShamMachine> createState() => _ShamMachineState();
+  State<ShamStates> createState() => _ShamStatesState();
 }
 
-class _ShamMachineState extends State<ShamMachine> {
+class _ShamStatesState extends State<ShamStates> {
   String version = "";
 
   @override
@@ -117,7 +117,7 @@ class _ShamMachineState extends State<ShamMachine> {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'ShamMachine v$version',
+        title: 'ShamStates v$version',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

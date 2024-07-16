@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:sham_machine/constants.dart';
-import 'package:sham_machine/state_machine.dart';
+import 'package:sham_states/constants.dart';
+import 'package:sham_states/state_machine.dart';
 
 class StateWidget extends StatefulWidget {
   const StateWidget({
