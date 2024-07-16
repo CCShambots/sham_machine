@@ -340,13 +340,12 @@ class _HomePageState extends State<HomePage> {
                         Expanded(child: interactiveViewer)
                       ],
                     )
-                  : Expanded(
-                      child: Center(
-                      child: Text(
-                        "Select a State Machine",
-                        style: StyleConstants.titleStyle,
-                      ),
-                    )),
+                  : Center(
+                  child: Text(
+                    "Select a State Machine",
+                    style: StyleConstants.titleStyle,
+                  ),
+                                      ),
             ),
           ],
         ));
