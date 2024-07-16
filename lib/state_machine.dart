@@ -97,7 +97,7 @@ class StateMachine {
         ntConnection.nt4Client.publishNewTopic(_setStateTopic, "string");
       }
 
-      print("Loaded state setter for ${name}");
+      print("Loaded state setter for $name");
     } catch (e) {
       print("Failed to load active state setter topic for $name");
     }
@@ -198,12 +198,12 @@ class StateMachine {
 
     final matches = transitionRegex.allMatches(fileContents);
 
-    matches.forEach((e) {
+    for (var e in matches) {
       String from = e.group(1)!;
       String to = e.group(2)!;
 
       addTranstion(from, to);
-    });
+    }
   }
 
   void loadCommutativeTransitions() {
@@ -212,13 +212,13 @@ class StateMachine {
 
     final matches = transitionRegex.allMatches(fileContents);
 
-    matches.forEach((e) {
+    for (var e in matches) {
       String first = e.group(1)!;
       String second = e.group(2)!;
 
       addTranstion(first, second);
       addTranstion(second, first);
-    });
+    }
   }
 
   void loadOmniTransitions() {
@@ -226,11 +226,11 @@ class StateMachine {
 
     final matches = transitionRegex.allMatches(fileContents);
 
-    matches.forEach((e) {
+    for (var e in matches) {
       String state = e.group(1)!;
 
       omniTransitions.add(state.split(".").last);
-    });
+    }
   }
 
   void addTranstion(String from, String to) {

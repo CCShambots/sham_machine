@@ -92,7 +92,7 @@ Future<void> _restorePreferencesFromBackup(String appFolderPath) async {
 class ShamMachine extends StatefulWidget {
   final SharedPreferences preferences;
 
-  ShamMachine({required this.preferences});
+  const ShamMachine({super.key, required this.preferences});
 
   @override
   State<ShamMachine> createState() => _ShamMachineState();
@@ -137,7 +137,7 @@ class _ShamMachineState extends State<ShamMachine> {
 class HomePage extends StatefulWidget {
   final SharedPreferences prefs;
 
-  HomePage({required this.prefs});
+  const HomePage({super.key, required this.prefs});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -168,7 +168,7 @@ class _HomePageState extends State<HomePage> {
 
     prefs = widget.prefs;
 
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
       setState(() {
         // Perform any state updates here
       });
@@ -228,9 +228,9 @@ class _HomePageState extends State<HomePage> {
 
     if (topics.length != previousTopicsLength) {
       previousTopicsLength = topics.length;
-      stateMachines.forEach((e) {
+      for (var e in stateMachines) {
         e.loadSubsystemSubscriptions();
-      });
+      }
       setState(() {});
     }
 
@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
                     )),
                     ...stateMachines.map((machine) {
                       return stateMachineList(machine);
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
@@ -398,7 +398,7 @@ class _HomePageState extends State<HomePage> {
 
     if (projectPath != null) {
       setState(() {
-        this.selectedDirectory = projectPath;
+        selectedDirectory = projectPath;
       });
 
       return true;

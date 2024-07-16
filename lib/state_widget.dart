@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sham_machine/constants.dart';
-import 'package:sham_machine/main.dart';
 import 'package:sham_machine/state_machine.dart';
 
 class StateWidget extends StatefulWidget {
@@ -63,7 +62,7 @@ class _StateWidgetState extends State<StateWidget> {
               widget.machine!.setTargetState(stateName);
             },
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 boxShadow: [
