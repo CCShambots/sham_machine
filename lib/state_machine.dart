@@ -87,17 +87,10 @@ class StateMachine {
       createTopicIfNull();
 
       if (publishTopic) {
-        // var row = root
-        //     .getRow("SmartDashboard")
-        //     .getRow("${name} State Chooser")
-        //     .getRow("default");
-
-        // var defaultSub = ntConnection.subscribe(row.topic);
 
         ntConnection.nt4Client.publishNewTopic(_setStateTopic, "string");
       }
 
-      print("Loaded state setter for $name");
     } catch (e) {
       print("Failed to load active state setter topic for $name");
     }

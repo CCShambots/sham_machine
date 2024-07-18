@@ -6,7 +6,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sham_states/constants.dart';
 import 'package:sham_states/services/ip_address_util.dart';
 import 'package:sham_states/services/nt_connection.dart';
-import 'package:sham_states/services/text_formatter_builder.dart';
 import 'package:sham_states/settings.dart';
 import 'package:sham_states/widgets/dialog_widgets/dialog_dropdown_chooser.dart';
 import 'package:sham_states/widgets/dialog_widgets/dialog_text_input.dart';
@@ -18,17 +17,13 @@ class SettingsDialog extends StatefulWidget {
   final Function(String? data)? onIPAddressChanged;
   final Function(String? data)? onTeamNumberChanged;
   final Function(IPAddressMode mode)? onIPAddressModeChanged;
-  final Function(String? value)? onDefaultPeriodChanged;
-  final Function(String? value)? onDefaultGraphPeriodChanged;
 
   const SettingsDialog({
     super.key,
     required this.preferences,
     this.onTeamNumberChanged,
     this.onIPAddressModeChanged,
-    this.onIPAddressChanged,
-    this.onDefaultPeriodChanged,
-    this.onDefaultGraphPeriodChanged,
+    this.onIPAddressChanged
   });
 
   @override
@@ -62,19 +57,17 @@ class _SettingsDialogState extends State<SettingsDialog> {
           maxHeight: 275,
           maxWidth: 725,
         ),
-        child: Flexible(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: Text('Version $version'),
-              ),
-              ..._generalSettings(),
-              const Divider(),
-              ..._ipAddressSettings(),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child: Text('Version $version'),
+            ),
+            ..._generalSettings(),
+            const Divider(),
+            ..._ipAddressSettings(),
+          ],
         ),
       ),
       actions: [
@@ -88,18 +81,16 @@ class _SettingsDialogState extends State<SettingsDialog> {
 
   List<Widget> _generalSettings() {
     return [
-      Flexible(
-        child: DialogTextInput(
-          initialText:
-              widget.preferences.getInt(PrefKeys.teamNumber)?.toString() ??
-                  Settings.teamNumber.toString(),
-          label: 'Team Number',
-          onSubmit: (data) async {
-            await widget.onTeamNumberChanged?.call(data);
-            setState(() {});
-          },
-          formatter: FilteringTextInputFormatter.digitsOnly,
-        ),
+      DialogTextInput(
+        initialText:
+            widget.preferences.getInt(PrefKeys.teamNumber)?.toString() ??
+                Settings.teamNumber.toString(),
+        label: 'Team Number',
+        onSubmit: (data) async {
+          await widget.onTeamNumberChanged?.call(data);
+          setState(() {});
+        },
+        formatter: FilteringTextInputFormatter.digitsOnly,
       ),
     ];
   }
@@ -148,48 +139,48 @@ class _SettingsDialogState extends State<SettingsDialog> {
     ];
   }
 
-  List<Widget> _networkTablesSettings() {
-    return [
-      const Align(
-        alignment: Alignment.topLeft,
-        child: Text('Network Tables Settings'),
-      ),
-      const SizedBox(height: 5),
-      Flexible(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Flexible(
-              child: DialogTextInput(
-                initialText:
-                    (widget.preferences.getDouble(PrefKeys.defaultPeriod) ??
-                            Settings.defaultPeriod)
-                        .toString(),
-                label: 'Default Period',
-                onSubmit: (value) async {
-                  await widget.onDefaultPeriodChanged?.call(value);
-                  setState(() {});
-                },
-                formatter: TextFormatterBuilder.decimalTextFormatter(),
-              ),
-            ),
-            Flexible(
-              child: DialogTextInput(
-                initialText: (widget.preferences
-                            .getDouble(PrefKeys.defaultGraphPeriod) ??
-                        Settings.defaultGraphPeriod)
-                    .toString(),
-                label: 'Default Graph Period',
-                onSubmit: (value) async {
-                  widget.onDefaultGraphPeriodChanged?.call(value);
-                  setState(() {});
-                },
-                formatter: TextFormatterBuilder.decimalTextFormatter(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ];
-  }
+  // List<Widget> _networkTablesSettings() {
+  //   return [
+  //     const Align(
+  //       alignment: Alignment.topLeft,
+  //       child: Text('Network Tables Settings'),
+  //     ),
+  //     const SizedBox(height: 5),
+  //     Flexible(
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //         children: [
+  //           Flexible(
+  //             child: DialogTextInput(
+  //               initialText:
+  //                   (widget.preferences.getDouble(PrefKeys.defaultPeriod) ??
+  //                           Settings.defaultPeriod)
+  //                       .toString(),
+  //               label: 'Default Period',
+  //               onSubmit: (value) async {
+  //                 await widget.onDefaultPeriodChanged?.call(value);
+  //                 setState(() {});
+  //               },
+  //               formatter: TextFormatterBuilder.decimalTextFormatter(),
+  //             ),
+  //           ),
+  //           Flexible(
+  //             child: DialogTextInput(
+  //               initialText: (widget.preferences
+  //                           .getDouble(PrefKeys.defaultGraphPeriod) ??
+  //                       Settings.defaultGraphPeriod)
+  //                   .toString(),
+  //               label: 'Default Graph Period',
+  //               onSubmit: (value) async {
+  //                 widget.onDefaultGraphPeriodChanged?.call(value);
+  //                 setState(() {});
+  //               },
+  //               formatter: TextFormatterBuilder.decimalTextFormatter(),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   ];
+  // }
 }

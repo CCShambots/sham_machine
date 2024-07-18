@@ -173,6 +173,23 @@ class _HomePageState extends State<HomePage> {
         // Perform any state updates here
       });
     });
+
+    ntConnection.dsClientConnect(
+      onIPAnnounced: (ip) async {
+        if (Settings.ipAddressMode != IPAddressMode.driverStation) {
+          return;
+        }
+
+        if (widget.prefs.getString(PrefKeys.ipAddress) != ip) {
+          await widget.prefs.setString(PrefKeys.ipAddress, ip);
+        } else {
+          return;
+        }
+
+        ntConnection.changeIPAddress(ip);
+      },
+      onDriverStationDockChanged: (docked) {},
+    );
   }
 
   void createRows(NT4Topic nt4Topic) {
@@ -558,34 +575,6 @@ class _HomePageState extends State<HomePage> {
           }
 
           _updateIPAddress(data);
-        },
-        onDefaultPeriodChanged: (value) async {
-          if (value == null) {
-            return;
-          }
-          double? newPeriod = double.tryParse(value);
-
-          if (newPeriod == null || newPeriod == Settings.defaultPeriod) {
-            return;
-          }
-
-          await prefs.setDouble(PrefKeys.defaultPeriod, newPeriod);
-
-          setState(() => Settings.defaultPeriod = newPeriod);
-        },
-        onDefaultGraphPeriodChanged: (value) async {
-          if (value == null) {
-            return;
-          }
-          double? newPeriod = double.tryParse(value);
-
-          if (newPeriod == null || newPeriod == Settings.defaultGraphPeriod) {
-            return;
-          }
-
-          await prefs.setDouble(PrefKeys.defaultGraphPeriod, newPeriod);
-
-          setState(() => Settings.defaultGraphPeriod = newPeriod);
         },
       ),
     );
