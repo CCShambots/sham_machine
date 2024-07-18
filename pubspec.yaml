@@ -2,7 +2,7 @@ name: sham_states
 description: "An app that connects to robots using ShamLib, developed by FRC 5907, in order to more easily debug state machines and control their behaviors."
 publish_to: 'none'
 
-version: 1.0.1+2
+version: 1.0.2+3
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
